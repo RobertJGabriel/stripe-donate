@@ -34,10 +34,11 @@ app.get('/', (req, res) => {
  * @param  {} res
  */
 app.post('/subscription', (req, res) => {
-
+console.log(keySecret);
   try {
     stripe.customers.create({
-        email: req.body.stripeEmail
+        email: req.body.stripeEmail,
+        source: req.body.stripeToken
       },
       function (err, customer) {
         if (err) {
