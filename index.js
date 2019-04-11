@@ -33,33 +33,72 @@ app.get('/', (req, res) => {
  * @param  {} (req
  * @param  {} res
  */
-app.post('/donate', (req, res) => {
-
-  let amount = req.query.amount;
-
-  if (typeof amount === 'undefined' || amount === null) {
-    amount = 100; // 1 dollar as the default.
-  }
+app.post('/subscription/create', (req, res) => {
 
   try {
-    stripe.customers
-      .create({
-        email: req.body.stripeEmail,
-        source: req.body.stripeToken
-      })
-      .then(customer =>
-        stripe.charges.create({
-          amount,
-          description: `${req.body.stripeEmail} donatee ${amount}`,
-          currency: 'EUR',
-          customer: customer.id
-        })
-      )
-      .then(charge => res.redirect('https://robertgabriel.ninja/thankyou'));
+    stripe.customers.create({
+        email: req.body.stripeEmail
+      },
+      function (err, customer) {
+        if (err) {
+          res.status(400).send('Couldnt create the customer record');
+        }
+
+        stripe.subscriptions.create({
+          customer: customer.id,
+          items: [
+            {
+              plan: 2,
+            },
+          ]
+        }, function(err, subscription) {
+            console.log(subscription);
+            console.log(err);
+          }
+        );
+
+        res.send(
+          JSON.stringify({
+            message: customer.id
+          })
+        );
+      }
+    );
   } catch (e) {
-    res.status(400).send('Invalid JSON string')
+    res.status(400).send('Invalid JSON string');
   }
-})
+});
+
+
+/**
+ * @param  {} '/donate'
+ * @param  {} (req
+ * @param  {} res
+ */
+app.post('/create/user', (req, res) => {
+  stripe.customers.create({
+      email: req.body.stripeEmail
+    },
+    function (err, customer) {
+      if (err) {
+        res.send(
+          JSON.stringify({
+            message: 'Couldnt create user'
+          })
+        )
+
+      }
+      res.send(
+        JSON.stringify({
+          message: customer.id
+        })
+      );
+    }
+  );
+});
+
+
+
 
 
 /**
