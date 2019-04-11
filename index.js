@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
  * @param  {} (req
  * @param  {} res
  */
-app.post('/subscription/create', (req, res) => {
+app.post('/subscription', (req, res) => {
 
   try {
     stripe.customers.create({
